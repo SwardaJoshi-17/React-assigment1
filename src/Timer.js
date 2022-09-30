@@ -8,6 +8,7 @@ const Timer = () => {
   const [minutes, setMinutes] = useState(0);
   const [hours, setHours] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const USA =()=>{
  
@@ -57,39 +58,59 @@ const Timer = () => {
   
   function toggle() {
     setIsActive(!isActive);
-  }
-
-  function reset() {
-    setSeconds(0);
-    setMinutes(0);
-    setHours(0);
-    setIsActive(false);
-  }
-  var interval=null;
+    setIsDisabled(!isDisabled); //disable input on play
   
+    if (seconds===0 && minutes===0 && hours===0)
+    {
+      setIsActive(isActive);
+      alert("Enter Time as input!")
+      setIsDisabled(isDisabled);
+    }}
+function reset(){
+ 
+  setSeconds(0);
+  setMinutes(0);
+  setHours(0);
+  
+  if (seconds===0 && minutes===0 && hours===0)
+  {
+    setIsActive(isActive);
+    alert("Enter Time as input!")
+    
+  }
+}
+ 
+  var interval;
+  
+ 
   useEffect(() => {
 
-    
+           
     if (seconds<0 || minutes<0 || hours<0 || seconds>60 || minutes>60 || hours>24)
     {
       setSeconds(0);
       setMinutes(0);
       setHours(0);
+      
+     
       clearInterval(interval);
       return (alert("Wrong Input!"))
     }
-    if (seconds===0 && minutes===0 && hours===0)//timeout
+    if (seconds===0 && minutes===0 && hours===0)
     {
-      
-      return (alert("Timeout Completed!"))
-      
-      
-    }     
-    if (isActive) {
-    
-      
+      setIsDisabled(isDisabled);
+      setSeconds(0);
+      setMinutes(0);
+      setHours(0);
+      clearInterval(interval);
+      setIsActive(false);
+      alert('Timeout')
+     
+    }
+     
+    if (isActive) { 
       interval = setInterval(() => {
-    
+
         setSeconds(seconds-1)
         if (seconds===0 && minutes>0)
         {
@@ -111,19 +132,42 @@ const Timer = () => {
 
 
       }, 1000);
-    } else if (!isActive && seconds !==0) {
+    } 
+   else if (!isActive && seconds !==0) {
+     
       clearInterval(interval);
+      
     }
+   
     return () => clearInterval(interval);
+    
 
   }, [isActive, seconds, minutes, hours]);
 
+  
   return (
+    
     <div className="app">
+      
       <div className="time">
-      <span>Enter Hours : <input type="number" onChange={(e) => {setHours(e.target.value);}} placeholder='00'/></span>
-      <span>Enter Minutes : <input type="number" onChange={(e) => {setMinutes(e.target.value);}} placeholder='00'/></span>
-      <span>Enter Seconds : <input type="number" onChange={(e) => {setSeconds(e.target.value);}} placeholder='00'/></span>
+      <span>Enter Hours : <input maxLength={2}  onChange={(e) => { if ((isNaN(e.target.value)))
+         { 
+          alert('Only Numbers are allowed')
+          e. target. value = e. target. value. slice(0, e. target) }
+          else ( setHours(e.target.value));}} disabled={isDisabled} placeholder='00'/> 
+            </span>
+      <span>Enter Minutes : <input maxLength={2}  onChange={(e) => { if ((isNaN(e.target.value)))
+         { 
+          alert('Only Numbers are allowed')
+          e. target. value = e. target. value. slice(0, e. target) }
+          else ( setMinutes(e.target.value));}}  disabled={isDisabled} placeholder='00'/>
+        </span>
+      <span>Enter Seconds : <input maxLength={2}  onChange={(e) => { if ((isNaN(e.target.value)))
+         { 
+          alert('Only Numbers are allowed')
+          e. target. value = e. target. value. slice(0, e. target) }
+          else ( setSeconds(e.target.value));}} 
+          disabled={isDisabled}placeholder='00'/></span>
 
        </div>
       <h1 className="timeclock">{hours<10 ? "0"+ hours:hours} hrs : {minutes<10? "0"+ minutes:minutes} min : {seconds<10? "0" +seconds:seconds} sec</h1>
@@ -140,7 +184,7 @@ const Timer = () => {
         <button className={`button button-primary button-primary-${isActive ? 'active' : 'inactive'}`} onClick={toggle}>
           {isActive ? 'Pause' : 'Play'}
         </button>
-        <button className="button" onClick={reset}>
+        <button className="button" onClick={reset} >
           Reset
         </button>
       </div>
